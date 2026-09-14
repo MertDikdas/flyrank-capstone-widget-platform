@@ -60,3 +60,16 @@ class WidgetRepository:
     ) -> None:
 
         db.delete(widget)
+
+    @staticmethod
+    def get_public_by_id(
+        db: Session,
+        widget_id: uuid.UUID
+    ) -> Widget | None:
+
+        statement = select(Widget).where(
+            Widget.id == widget_id,
+            Widget.is_active.is_(True)
+        )
+
+        return db.scalar(statement)
