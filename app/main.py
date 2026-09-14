@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.auth import router as auth_router
 from app.api.widgets import router as widgets_router
@@ -11,6 +12,17 @@ app = FastAPI(
     version="0.1.0"
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Content-Type",
+        "Authorization",
+        "Idempotency-Key",
+    ],
+)
 
 app.include_router(auth_router)
 app.include_router(widgets_router)

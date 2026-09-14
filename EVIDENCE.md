@@ -11,3 +11,41 @@ Expected behavior:
 - Tenant B could not update or delete Tenant A's widget.
 
 This proves tenant ownership is enforced in backend queries rather than only in the client.
+
+## Cross-Origin Public Submission
+
+A plain HTML customer page was served from:
+
+    http://localhost:5500
+
+The API was served from:
+
+    http://localhost:8000
+
+The browser successfully completed the CORS preflight request and submitted a valid lead to the public submission endpoint.
+
+Observed request flow:
+
+    OPTIONS /public/widgets/{widget_id}/submissions
+    POST /public/widgets/{widget_id}/submissions
+
+The submission returned a successful 2xx response and the resulting row was verified in PostgreSQL.
+
+## Cross-Origin Public Submission
+
+A plain HTML customer page was served from:
+
+    http://localhost:5500
+
+The API was served from:
+
+    http://localhost:8000
+
+The browser successfully completed the CORS preflight request and submitted a valid lead to the public submission endpoint.
+
+Observed request flow:
+
+    OPTIONS /public/widgets/{widget_id}/submissions
+    POST /public/widgets/{widget_id}/submissions
+
+The submission returned a successful 2xx response and the resulting row was verified in PostgreSQL.
