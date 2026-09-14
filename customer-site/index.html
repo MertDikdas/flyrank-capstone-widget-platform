@@ -31,7 +31,11 @@
 
             <textarea id="message" name="message" required></textarea>
         </div>
+        <div aria-hidden="true" style="position:absolute; left:-9999px;">
+            <label for="website">Website</label>
 
+            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
         <br>
 
         <button type="submit">
@@ -96,7 +100,11 @@
                             },
 
                             body: JSON.stringify({
-                                payload: payload
+                                payload: payload,
+                                honeypot:
+                                    document.getElementById(
+                                        "website"
+                                    ).value
                             })
                         }
                     );

@@ -6,6 +6,11 @@ from app.api.widgets import router as widgets_router
 from app.api.public import router as public_router
 from app.core.database import check_database_connection
 
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi import _rate_limit_exceeded_handler
+
+from app.core.rate_limit import limiter
 
 app = FastAPI(
     title="Embeddable Widget & Lead-Capture Platform",
@@ -22,6 +27,17 @@ app.add_middleware(
         "Authorization",
         "Idempotency-Key",
     ],
+)
+
+app.state.limiter = limiter
+
+app.add_exception_handler(
+    RateLimitExceeded,
+    _rate_limit_exceeded_handler
+)
+
+app.add_middleware(
+    SlowAPIMiddleware
 )
 
 app.include_router(auth_router)

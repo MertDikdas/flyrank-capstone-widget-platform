@@ -10,6 +10,10 @@ class SubmissionCreate(BaseModel):
         min_length=1
     )
 
+    honeypot: str | None = Field(
+        default=None,
+        max_length=200
+    )
 
 class SubmissionResponse(BaseModel):
     id: uuid.UUID

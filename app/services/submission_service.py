@@ -94,6 +94,10 @@ class SubmissionService:
                 detail="Widget not found"
             )
 
+        SubmissionService.check_spam(
+            data.honeypot
+        )
+
         existing = (
             SubmissionRepository.get_by_idempotency_key(
                 db,
@@ -106,6 +110,7 @@ class SubmissionService:
             return SubmissionResponse.model_validate(
                 existing
             )
+
 
         SubmissionService.validate_payload(
             widget.fields,
@@ -150,3 +155,14 @@ class SubmissionService:
         return SubmissionResponse.model_validate(
             submission
         )
+
+    @staticmethod
+    def check_spam(
+        honeypot: str | None
+    ) -> None:
+
+        if honeypot and honeypot.strip():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid submission"
+            )

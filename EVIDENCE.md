@@ -49,3 +49,23 @@ Observed request flow:
     POST /public/widgets/{widget_id}/submissions
 
 The submission returned a successful 2xx response and the resulting row was verified in PostgreSQL.
+
+## Abuse Protection
+
+### Rate Limiting
+
+The public submission endpoint enforces request limits at the API boundary.
+
+A burst of submissions from the same client produced successful responses until the configured limit was reached, after which the API returned:
+
+    429 Too Many Requests
+
+The service remained responsive after the rejected burst.
+
+### Honeypot Spam Protection
+
+The customer form contains a hidden honeypot field that normal visitors do not fill.
+
+A submission with the honeypot populated was rejected with a 4xx response and was verified not to exist in PostgreSQL.
+
+This demonstrates that obvious automated form-filling traffic is blocked before persistence.

@@ -16,6 +16,10 @@ from app.schemas.submission import (
 )
 from app.services.submission_service import SubmissionService
 
+from app.core.rate_limit import (
+    get_widget_key,
+    limiter,
+)
 
 router = APIRouter(
     prefix="/public",
@@ -28,10 +32,15 @@ router = APIRouter(
     response_model=SubmissionResponse,
     status_code=status.HTTP_201_CREATED
 )
+@limiter.limit("5/minute")
+@limiter.limit(
+    "20/minute",
+    key_func=get_widget_key
+)
 def create_submission(
+    request: Request,
     widget_id: uuid.UUID,
     data: SubmissionCreate,
-    request: Request,
     idempotency_key: str = Header(
         ...,
         alias="Idempotency-Key",
