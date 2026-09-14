@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16
+    container_name: widget-platform-db
+    environment:
+      POSTGRES_DB: widget_platform
+      POSTGRES_USER: widget_user
+      POSTGRES_PASSWORD: widget_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - widget_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U widget_user -d widget_platform" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  widget_postgres_data:
