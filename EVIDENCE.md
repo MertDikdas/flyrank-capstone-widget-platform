@@ -137,3 +137,25 @@ The background job retried independently and eventually reached:
     last_error = Simulated notification failure
 
 This demonstrates that failure of a non-critical side effect does not break the primary submission path.
+
+## Owner Dashboard
+
+Authenticated widget owners can retrieve their stored submissions and aggregated statistics.
+
+Verified endpoints:
+
+    GET /api/dashboard/submissions
+    GET /api/dashboard/submissions/{submission_id}
+    GET /api/dashboard/stats
+
+The statistics endpoint reports:
+
+- total submission count
+- submissions from the last seven days
+- counts grouped by widget
+- counts grouped by country
+- daily submission counts
+
+Dashboard queries are tenant-isolated.
+
+A second tenant could not list or retrieve submissions belonging to the first tenant, and direct access to another tenant's submission returned:
