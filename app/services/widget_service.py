@@ -6,11 +6,15 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.models.widget import Widget
 from app.repositories.widget_repository import WidgetRepository
+from app.core.config import settings
 from app.schemas.widget import (
+    EmbedSnippetResponse,
+    PublicWidgetConfig,
     WidgetCreate,
     WidgetResponse,
     WidgetUpdate,
 )
+
 
 
 class WidgetService:
@@ -160,3 +164,53 @@ class WidgetService:
         )
 
         db.commit()
+
+    @staticmethod
+    def get_public_config(
+        db: Session,
+        widget_id: uuid.UUID
+    ) -> PublicWidgetConfig:
+
+        widget = WidgetRepository.get_public_by_id(
+            db,
+            widget_id
+        )
+
+        if widget is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Widget not found"
+            )
+
+        return PublicWidgetConfig.model_validate(
+            widget
+        )
+
+
+    @staticmethod
+    def get_embed_snippet(
+        db: Session,
+        current_user: User,
+        widget_id: uuid.UUID
+    ) -> EmbedSnippetResponse:
+
+        widget = WidgetRepository.get_by_id(
+            db,
+            widget_id,
+            current_user.tenant_id
+        )
+
+        if widget is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Widget not found"
+            )
+
+        snippet = (
+            f'<script src="{settings.public_base_url}/static/'
+            f'widget.v1.js?id={widget.id}"></script>'
+        )
+
+        return EmbedSnippetResponse(
+            snippet=snippet
+        )

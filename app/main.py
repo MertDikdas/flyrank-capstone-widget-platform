@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.auth import router as auth_router
 from app.api.widgets import router as widgets_router
 from app.api.public import router as public_router
+from app.api.static import router as static_router
 from app.core.database import check_database_connection
 
 from slowapi.errors import RateLimitExceeded
@@ -59,6 +60,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(widgets_router)
 app.include_router(public_router)
+app.include_router(static_router)
 
 @app.get("/health")
 def health():

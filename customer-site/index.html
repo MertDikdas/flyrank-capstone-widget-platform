@@ -3,138 +3,19 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Widget Platform Test Site</title>
+    <title>External Customer Website</title>
 </head>
 
 <body>
 
-    <h1>External Customer Website</h1>
+    <h1>Example Customer Website</h1>
 
     <p>
-        This page runs on a different origin from the API.
+        The widget below is loaded from another origin.
     </p>
 
-    <form id="contact-form">
-
-        <div>
-            <label for="email">Email</label>
-
-            <input id="email" name="email" type="email" required>
-        </div>
-
-        <br>
-
-        <div>
-            <label for="message">Message</label>
-
-            <textarea id="message" name="message" required></textarea>
-        </div>
-        <div aria-hidden="true" style="position:absolute; left:-9999px;">
-            <label for="website">Website</label>
-
-            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
-        </div>
-        <br>
-
-        <button type="submit">
-            Send
-        </button>
-
-    </form>
-
-    <p id="result"></p>
-
-    <script>
-        const WIDGET_ID = "732cb17e-8160-4c26-8c3b-dedf40623f51";
-
-        const API_BASE_URL = "http://localhost:8000";
-
-        const form = document.getElementById(
-            "contact-form"
-        );
-
-        const result = document.getElementById(
-            "result"
-        );
-
-
-        form.addEventListener(
-            "submit",
-            async (event) => {
-
-                event.preventDefault();
-
-                result.textContent = "Sending...";
-
-                const idempotencyKey =
-                    crypto.randomUUID();
-
-                const payload = {
-                    email:
-                        document.getElementById(
-                            "email"
-                        ).value,
-
-                    message:
-                        document.getElementById(
-                            "message"
-                        ).value
-                };
-
-
-                try {
-
-                    const response = await fetch(
-                        `${API_BASE_URL}/public/widgets/${WIDGET_ID}/submissions`,
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
-
-                                "Idempotency-Key":
-                                    idempotencyKey
-                            },
-
-                            body: JSON.stringify({
-                                payload: payload,
-                                honeypot:
-                                    document.getElementById(
-                                        "website"
-                                    ).value
-                            })
-                        }
-                    );
-
-
-                    const data =
-                        await response.json();
-
-
-                    if (!response.ok) {
-
-                        result.textContent =
-                            `Error: ${JSON.stringify(data)}`;
-
-                        return;
-                    }
-
-
-                    result.textContent =
-                        `Success! Submission ID: ${data.id}`;
-
-                } catch (error) {
-
-                    console.error(error);
-
-                    result.textContent =
-                        "Network error";
-                }
-            }
-        );
+    <script src="http://localhost:8000/static/widget.v1.js?id=732cb17e-8160-4c26-8c3b-dedf40623f51">
     </script>
 
 </body>

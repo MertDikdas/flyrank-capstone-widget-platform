@@ -114,3 +114,21 @@ class WidgetResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True
     )
+
+
+class PublicWidgetConfig(BaseModel):
+    id: uuid.UUID
+    type: str
+    title: str
+    description: str | None
+    button_text: str
+    fields: list[dict[str, Any]]
+    display_options: dict[str, Any]
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
+
+
+class EmbedSnippetResponse(BaseModel):
+    snippet: str
