@@ -7,8 +7,13 @@ class Settings(BaseSettings):
     jwt_secret: str = "change-me"
     jwt_algorithm: str = "HS256"
 
-    geo_provider_a_url: str = ""
-    geo_provider_b_url: str = ""
+    geo_mode: str = "mock"
+
+    geo_provider_a_enabled: bool = True
+    geo_provider_b_enabled: bool = True
+
+    geo_provider_a_url: str = "http://ip-api.com/json"
+    geo_provider_b_url: str = "https://ipapi.co"
 
     notification_enabled: bool = True
 

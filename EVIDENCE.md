@@ -69,3 +69,47 @@ The customer form contains a hidden honeypot field that normal visitors do not f
 A submission with the honeypot populated was rejected with a 4xx response and was verified not to exist in PostgreSQL.
 
 This demonstrates that obvious automated form-filling traffic is blocked before persistence.
+
+## Geo Enrichment Fallback
+
+The submission flow enriches visitor IP addresses with approximate location data.
+
+### Provider A available
+
+Configuration:
+
+    GEO_PROVIDER_A_ENABLED=true
+    GEO_PROVIDER_B_ENABLED=true
+
+A valid submission was stored with:
+
+    country = Turkey
+    city = Izmir
+
+### Provider A unavailable
+
+Configuration:
+
+    GEO_PROVIDER_A_ENABLED=false
+    GEO_PROVIDER_B_ENABLED=true
+
+The submission still succeeded and was enriched by the fallback provider:
+
+    country = Germany
+    city = Berlin
+
+### All providers unavailable
+
+Configuration:
+
+    GEO_PROVIDER_A_ENABLED=false
+    GEO_PROVIDER_B_ENABLED=false
+
+The submission still returned a successful response and was stored.
+
+The resulting database row contained:
+
+    country = NULL
+    city = NULL
+
+This proves geolocation is optional enrichment and failure of all providers does not break the main submission path.

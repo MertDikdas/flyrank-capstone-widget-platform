@@ -11,6 +11,7 @@ from app.schemas.submission import (
     SubmissionCreate,
     SubmissionResponse,
 )
+from app.services.geo_service import GeoService
 
 
 class SubmissionService:
@@ -117,12 +118,26 @@ class SubmissionService:
             data.payload
         )
 
+        geo = GeoService.enrich(
+            ip_address
+        )
+
         submission = Submission(
             tenant_id=widget.tenant_id,
             widget_id=widget.id,
             payload=data.payload,
             idempotency_key=idempotency_key,
-            ip_address=ip_address
+            ip_address=ip_address,
+            country=(
+                geo.country
+                if geo
+                else None
+            ),
+            city=(
+                geo.city
+                if geo
+                else None
+            )
         )
 
         try:
