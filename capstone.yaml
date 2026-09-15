@@ -1,0 +1,39 @@
+run: "./scripts/run.sh"
+
+seed: ".venv/bin/python scripts/seed.py"
+
+base_url: "http://localhost:8000"
+
+endpoints:
+  - method: "GET"
+    path: "/health"
+
+  - method: "POST"
+    path: "/api/auth/register"
+
+  - method: "POST"
+    path: "/api/auth/login"
+
+  - method: "GET"
+    path: "/api/auth/me"
+
+  - method: "POST"
+    path: "/api/widgets"
+
+  - method: "GET"
+    path: "/api/widgets"
+
+  - method: "GET"
+    path: "/api/widgets/33333333-3333-3333-3333-333333333333/embed"
+
+  - method: "GET"
+    path: "/public/widgets/33333333-3333-3333-3333-333333333333/config"
+
+  - method: "POST"
+    path: "/public/widgets/33333333-3333-3333-3333-333333333333/submissions"
+
+  - method: "GET"
+    path: "/api/dashboard/submissions"
+
+  - method: "GET"
+    path: "/api/dashboard/stats"
