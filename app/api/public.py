@@ -38,7 +38,7 @@ router = APIRouter(
     response_model=SubmissionResponse,
     status_code=status.HTTP_201_CREATED
 )
-@limiter.limit("5/minute")
+@limiter.limit("5/second")
 @limiter.limit(
     "20/minute",
     key_func=get_widget_key

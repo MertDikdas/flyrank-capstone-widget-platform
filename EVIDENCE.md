@@ -159,3 +159,158 @@ The statistics endpoint reports:
 Dashboard queries are tenant-isolated.
 
 A second tenant could not list or retrieve submissions belonging to the first tenant, and direct access to another tenant's submission returned:
+
+
+## Acceptance Probe 1 — Valid Public Submission
+
+A valid submission was sent to the seeded demo widget.
+
+Response:
+
+    HTTP/1.1 201 Created
+
+Returned submission:
+
+    id = e6c2ba32-59ab-45fb-a8f6-378035151098
+    widget_id = 33333333-3333-3333-3333-333333333333
+
+The authenticated dashboard returned the same submission with:
+
+    email = probe1@example.com
+    message = Acceptance probe one
+
+The submission was also verified directly in PostgreSQL.
+
+Result: PASS
+
+
+## Acceptance Probe 2 — Invalid and Oversized Payloads
+
+Missing required `message` field:
+
+    HTTP/1.1 422 Unprocessable Content
+
+Response:
+
+    {"detail":{"message":"Missing required fields","fields":["message"]}}
+
+Oversized message (>5000 characters):
+
+    HTTP/1.1 413 Content Too Large
+
+Response:
+
+    {"detail":"Field 'message' is too large"}
+
+Neither invalid request produced an HTTP 500 response.
+
+Result: PASS
+
+## Acceptance Probe 3 — Rate Limiting and Recovery
+
+A burst of eight submissions was sent from the same client.
+
+Observed responses:
+
+    request 1 -> 201
+    request 2 -> 201
+    request 3 -> 201
+    request 4 -> 201
+    request 5 -> 201
+    request 6 -> 429
+    request 7 -> 429
+    request 8 -> 429
+
+After waiting for the short rate-limit window to expire, a normal request succeeded:
+
+    HTTP/1.1 201 Created
+
+This proves burst traffic is rejected without leaving the service unavailable.
+
+### Idempotency verification
+
+The same request was sent twice with the same `Idempotency-Key`.
+
+Both responses returned the same submission ID:
+
+    edbd3f90-b5c1-411c-b34f-c4554bc9c0e5
+
+No duplicate submission was created.
+
+Result: PASS
+
+## Acceptance Probe 4 — Geo Fallback and Graceful Degradation
+
+### Provider A unavailable, Provider B available
+
+Configuration:
+
+    GEO_PROVIDER_A_ENABLED=false
+    GEO_PROVIDER_B_ENABLED=true
+
+A valid submission returned:
+
+    HTTP 201 Created
+
+The stored submission was enriched by Provider B:
+
+    country = Germany
+    city = Berlin
+
+### All geo providers unavailable
+
+Configuration:
+
+    GEO_PROVIDER_A_ENABLED=false
+    GEO_PROVIDER_B_ENABLED=false
+
+A valid submission still returned:
+
+    HTTP 201 Created
+
+The submission was stored successfully with:
+
+    country = NULL
+    city = NULL
+
+This proves that geolocation enrichment degrades gracefully and does not break the main submission path.
+
+Result: PASS
+
+## Acceptance Probe 5 — Notification Failure Isolation
+
+Notification delivery was deliberately forced to fail:
+
+    NOTIFICATION_FORCE_FAIL=true
+
+A valid public submission still returned:
+
+    HTTP 201 Created
+
+The submission was verified in PostgreSQL.
+
+The background notification job retried independently and eventually reached:
+
+    status = FAILED
+    attempt_count = 3
+    last_error = Simulated notification failure
+
+The failed side effect did not roll back or reject the stored submission.
+
+Result: PASS
+
+## Acceptance Probe 6 — Honeypot Spam Protection
+
+A bot-like submission populated the hidden honeypot field.
+
+The API returned:
+
+    HTTP 400 Bad Request
+
+Response:
+
+    {"detail":"Invalid submission"}
+
+A PostgreSQL query confirmed that no submission was stored for the spam payload.
+
+Result: PASS
