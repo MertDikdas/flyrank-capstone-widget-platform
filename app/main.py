@@ -10,11 +10,22 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi import _rate_limit_exceeded_handler
 
+from contextlib import asynccontextmanager
+
 from app.core.rate_limit import limiter
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start_scheduler()
+
+    yield
+
+    stop_scheduler()
 
 app = FastAPI(
     title="Embeddable Widget & Lead-Capture Platform",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(
@@ -27,6 +38,11 @@ app.add_middleware(
         "Authorization",
         "Idempotency-Key",
     ],
+)
+
+from app.core.scheduler import (
+    start_scheduler,
+    stop_scheduler,
 )
 
 app.state.limiter = limiter

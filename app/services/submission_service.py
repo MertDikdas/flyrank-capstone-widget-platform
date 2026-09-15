@@ -12,6 +12,7 @@ from app.schemas.submission import (
     SubmissionResponse,
 )
 from app.services.geo_service import GeoService
+from app.services.notification_service import NotificationService
 
 
 class SubmissionService:
@@ -148,6 +149,15 @@ class SubmissionService:
 
             db.commit()
             db.refresh(submission)
+
+            try:
+                NotificationService.enqueue(
+                    db,
+                    submission.id
+                )
+
+            except Exception:
+                db.rollback()
 
         except IntegrityError:
             db.rollback()

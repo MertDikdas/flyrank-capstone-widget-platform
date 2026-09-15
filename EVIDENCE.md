@@ -113,3 +113,27 @@ The resulting database row contained:
     city = NULL
 
 This proves geolocation is optional enrichment and failure of all providers does not break the main submission path.
+
+## Background Notification and Failure Isolation
+
+A notification job is created after a valid submission is persisted.
+
+Notification delivery runs asynchronously through a database-backed job processed by APScheduler.
+
+With notification delivery working:
+
+    status = COMPLETED
+
+When notification delivery was deliberately forced to fail:
+
+    NOTIFICATION_FORCE_FAIL=true
+
+the public submission endpoint still returned a successful response and the submission remained stored in PostgreSQL.
+
+The background job retried independently and eventually reached:
+
+    status = FAILED
+    attempt_count = 3
+    last_error = Simulated notification failure
+
+This demonstrates that failure of a non-critical side effect does not break the primary submission path.

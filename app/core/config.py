@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     geo_provider_b_url: str = "https://ipapi.co"
 
     notification_enabled: bool = True
+    notification_force_fail: bool = False
+    notification_max_retries: int = 3
+    notification_retry_seconds: int = 5
 
     model_config = SettingsConfigDict(
         env_file=".env",
